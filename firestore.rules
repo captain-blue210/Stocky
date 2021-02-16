@@ -5,9 +5,25 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
-    match /test/{docId} {
-      allow read: if true;
-      allow write: if false;
+    match /users/{userID} {
+      allow get: if isAuthenticatedUser(userID);
+    }
+
+    match /groups/{groupsID} {
+      allow get: if exists(documentPath(['groups', groupsID, 'members', request.auth.uid]));
+      //allow read, write: if true;
+    }
+
+    //function isAuthenticated() {
+      //return request.auth != null;
+//    }
+
+    function isAuthenticatedUser(userID) {
+      return request.auth.uid == userID;
+    }
+
+    function documentPath(paths) {
+      return path([['database', database, 'documents'].join('/'), paths.join('/')].join('/'));
     }
   }
 }
