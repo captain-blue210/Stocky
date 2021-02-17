@@ -20,6 +20,15 @@ describe('firestore', () => {
   describe('users', () => {
     describe('get operation', () => {
       it('can get user when userId equals uid', async () => {
+        const adminDB = helper.adminApp(projectID).firestore();
+        const ref = adminDB.collection('users').doc(TEST_AUTH.uid);
+
+        await ref.set({
+          userID: TEST_AUTH.uid,
+          name: 'test',
+          createdAt: adminFirestore.FieldValue.serverTimestamp(),
+        });
+
         const db = helper.app(projectID, TEST_AUTH).firestore();
         const doc = db.collection('users').doc(TEST_AUTH.uid);
         await assertSucceeds(doc.get());
@@ -28,34 +37,35 @@ describe('firestore', () => {
   });
 
   describe('groups', () => {
-    const groupdID = uuid.v4();
-    const userID = uuid.v4();
-    beforeEach(async () => {
-      const adminDB = helper.adminApp(projectID).firestore();
-      await adminDB
-        .collection('groups')
-        .doc(groupdID)
-        .collection('members')
-        .doc(userID)
-        .set({
-          name: 'blue210',
+    describe('get operation', () => {
+      const groupdID = uuid.v4();
+      const userID = uuid.v4();
+      it('can get groups if user exists', async () => {
+        const adminDB = helper.adminApp(projectID).firestore();
+        const ref = adminDB
+          .collection('groups')
+          .doc(groupdID)
+          .collection('members')
+          .doc(userID);
+
+        await ref.set({
+          userID,
+          name: 'test',
           createdAt: adminFirestore.FieldValue.serverTimestamp(),
         });
-    });
 
-    it('can get groups when userId exists in groups', async () => {
-      const db = helper
-        .app(projectID, {
-          email: 'test@gmail.com',
-          uid: userID,
-        })
-        .firestore();
-      const doc = db
-        .collection('groups')
-        .doc(groupdID)
-        .collection('members')
-        .doc(userID);
-      await assertSucceeds(doc.get());
+        const db = helper
+          .app(projectID, { uid: userID, email: 'test@gmail.com' })
+          .firestore();
+
+        const doc = db
+          .collection('groups')
+          .doc(groupdID)
+          .collection('members')
+          .doc(userID);
+
+        await assertSucceeds(doc.get());
+      });
     });
   });
 });
