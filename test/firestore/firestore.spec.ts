@@ -21,9 +21,7 @@ describe('firestore', () => {
     describe('get operation', () => {
       it('can get user when userId equals uid', async () => {
         const adminDB = helper.adminApp(projectID).firestore();
-        const ref = adminDB.collection('users').doc(TEST_AUTH.uid);
-
-        await ref.set({
+        await adminDB.collection('users').doc(TEST_AUTH.uid).set({
           userID: TEST_AUTH.uid,
           name: 'test',
           createdAt: adminFirestore.FieldValue.serverTimestamp(),
@@ -40,7 +38,7 @@ describe('firestore', () => {
     describe('get operation', () => {
       const groupdID = uuid.v4();
       const userID = uuid.v4();
-      it('can get groups if user exists', async () => {
+      it('can get groups if user exists in groups', async () => {
         const adminDB = helper.adminApp(projectID).firestore();
         const ref = adminDB
           .collection('groups')
@@ -64,6 +62,69 @@ describe('firestore', () => {
           .collection('members')
           .doc(userID);
 
+        await assertSucceeds(doc.get());
+      });
+    });
+  });
+
+  describe('foods', () => {
+    describe('create operation', () => {
+      const groupdID = uuid.v4();
+      const foodID = uuid.v4();
+      it('can create food', async () => {
+        const adminDB = helper.adminApp(projectID).firestore();
+        const ref = adminDB
+          .collection('groups')
+          .doc(groupdID)
+          .collection('foods')
+          .doc(foodID);
+
+        await assertSucceeds(
+          ref.set({
+            foodID,
+            foodName: 'foodtest',
+            expiryDate: 'test',
+            notificationDate: 'test',
+            createdAt: adminFirestore.FieldValue.serverTimestamp(),
+            updatedAt: adminFirestore.FieldValue.serverTimestamp(),
+          }),
+        );
+      });
+    });
+
+    describe('get operation', () => {
+      const groupdID = uuid.v4();
+      const foodID = uuid.v4();
+      it('can get foods if user exists in groups', async () => {
+        const adminDB = helper.adminApp(projectID).firestore();
+        await adminDB
+          .collection('groups')
+          .doc(groupdID)
+          .collection('members')
+          .doc(TEST_AUTH.uid)
+          .set({
+            userID: TEST_AUTH.uid,
+            name: 'test',
+            createdAt: adminFirestore.FieldValue.serverTimestamp(),
+          });
+
+        await adminDB
+          .collection('groups')
+          .doc(groupdID)
+          .collection('foods')
+          .doc(foodID)
+          .set({
+            foodID,
+            foodName: 'foodtest',
+            expiryDate: 'test',
+            notificationDate: 'test',
+            createdAt: adminFirestore.FieldValue.serverTimestamp(),
+            updatedAt: adminFirestore.FieldValue.serverTimestamp(),
+          });
+
+        const db = helper.app(projectID, TEST_AUTH).firestore();
+
+        const doc = db.collection('groups').doc(groupdID).collection('foods');
         await assertSucceeds(doc.get());
       });
     });
