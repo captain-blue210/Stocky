@@ -1,9 +1,9 @@
 export default {
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    title: 'nuxt-boilerplate',
+    title: 'Stocky',
     htmlAttrs: {
-      lang: 'en',
+      lang: 'jp',
     },
     meta: [
       { charset: 'utf-8' },
@@ -34,14 +34,15 @@ export default {
     '@nuxtjs/tailwindcss',
     '@nuxtjs/composition-api',
     '@nuxt/typescript-build',
-    'nuxt-typed-vuex'
+    // 'nuxt-typed-vuex'
   ],
 
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [
     // https://go.nuxtjs.dev/axios
     '@nuxtjs/axios',
-    '@nuxtjs/dotenv',
+    ['@nuxtjs/dotenv',
+      { filename: process.env.NODE_ENV !== 'prod' ? '.env_dev' : '.env_prod' }]
   ],
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
@@ -49,9 +50,6 @@ export default {
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
-    transpile: [
-      /typed-vuex/,
-    ]
   },
 
   env: {
