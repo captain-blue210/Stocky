@@ -43,20 +43,24 @@
 
 <script lang="ts">
 import { defineComponent, reactive } from '@nuxtjs/composition-api';
-import { signUp, User } from '~/compositions/user';
+import { signUp, useCurrentUser, User } from '~/compositions/user';
 
 export default defineComponent({
   setup() {
+    const { currentUser } = useCurrentUser();
     const user: User = reactive({
+      name: '',
       mail: '',
       password: '',
     });
 
     async function registUser() {
-      await signUp(user);
+      await signUp(user.mail, user.password);
     }
+
     return {
       user,
+      currentUser,
       registUser,
     };
   },
