@@ -38,3 +38,14 @@ export const signUp = async (mail: string, password: string) => {
   }
   await auth.createUserWithEmailAndPassword(mail, password);
 };
+
+export const useLogin = () => {
+  const login = async (mail: string, password: string) => {
+    const auth = await firebase.auth();
+    if (process.env.NODE_ENV === 'development') {
+      auth.useEmulator('http://localhost:9099');
+    }
+    await auth.signInWithEmailAndPassword(mail, password);
+  };
+  return { login };
+};
