@@ -10,14 +10,20 @@
       </thead>
       <tbody class="text-center divide-y-2">
         <tr>
-          <td>乾パン</td>
-          <td><input type="date" name="use-by" :value="dateValue" /></td>
-          <td><input type="date" name="check-date" :value="dateValue" /></td>
-        </tr>
-        <tr>
-          <td>乾パン</td>
-          <td><input type="date" name="use-by" :value="dateValue" /></td>
-          <td><input type="date" name="check-date" :value="dateValue" /></td>
+          <td><input v-model="food.foodName" type="text" name="name" /></td>
+          <td>
+            <input v-model="food.expiryDate" type="date" name="expiryDate" />
+          </td>
+          <td>
+            <input
+              v-model="food.notificationDate"
+              type="date"
+              name="check-date"
+            />
+          </td>
+          <td>
+            <button @click="registFood(food)">登録</button>
+          </td>
         </tr>
       </tbody>
     </table>
@@ -25,16 +31,17 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, Ref, ref } from '@nuxtjs/composition-api';
+import { defineComponent, reactive } from '@nuxtjs/composition-api';
+import { useEmptyFood, useRegistFood } from '~/compositions/food';
 
 export default defineComponent({
+  middleware: ['auth'],
   setup() {
-    const today: Date = new Date();
-    const dateValue: Ref<string> = ref(
-      `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`,
-    );
+    const food = reactive(useEmptyFood());
+    const { registFood } = useRegistFood();
     return {
-      dateValue,
+      food,
+      registFood,
     };
   },
 });

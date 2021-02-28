@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "nuxt-ts",
+    "dev": "cross-env NODE_ENV=dev nuxt",
     "build": "nuxt-ts build",
-    "start": "cross-env NODE_ENV=prod nuxt-ts start",
-    "generate": "nuxt-ts generate",
+    "start": "cross-env NODE_ENV=prod nuxt start",
+    "generate": "nuxt generate",
     "lint:js": "eslint --ext \".js,.vue\" --ignore-path .gitignore .",
     "lint:style": "stylelint \"**/*.{vue,css}\" --ignore-path .gitignore",
     "lint": "yarn lint:js && yarn lint:style",
@@ -22,15 +22,16 @@
     }
   },
   "dependencies": {
-    "@nuxt/typescript-runtime": "^2.0.1",
     "@nuxtjs/axios": "^5.12.5",
-    "@nuxtjs/composition-api": "^0.19.1",
+    "@nuxtjs/composition-api": "^0.20.2",
     "@nuxtjs/dotenv": "^1.4.1",
     "@tailwindcss/forms": "^0.2.1",
     "core-js": "^3.8.3",
+    "date-fns": "^2.17.0",
     "firebase-admin": "^9.5.0",
     "nuxt": "^2.14.12",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "vue-click-outside": "^1.1.0"
   },
   "devDependencies": {
     "@firebase/rules-unit-testing": "^1.2.0",

@@ -33,7 +33,7 @@
       <button
         class="bg-teal-500 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded"
         type="button"
-        @click="registUser"
+        @click="submit"
       >
         登録
       </button>
@@ -42,26 +42,27 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive } from '@nuxtjs/composition-api';
-import { signUp, useCurrentUser, User } from '~/compositions/user';
+import { defineComponent, reactive, useRouter } from '@nuxtjs/composition-api';
+import { User, useSignup } from '~/compositions/user';
 
 export default defineComponent({
   setup() {
-    const { currentUser } = useCurrentUser();
     const user: User = reactive({
       name: '',
       mail: '',
       password: '',
     });
 
-    async function registUser() {
-      await signUp(user.mail, user.password);
-    }
+    const { signup } = useSignup();
+    const submit = () => {
+      signup(user.mail, user.password);
+      const router = useRouter();
+      router.push('/');
+    };
 
     return {
       user,
-      currentUser,
-      registUser,
+      submit,
     };
   },
 });

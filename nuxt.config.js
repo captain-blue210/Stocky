@@ -19,7 +19,7 @@ export default {
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
     { src: '~/plugins/firebase.ts' },
-    { src: '~/plugins/firebase-auth.ts', mode: 'client' }
+    { src: '~/plugins/firebase-auth.ts' }
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
@@ -34,7 +34,6 @@ export default {
     // https://go.nuxtjs.dev/tailwindcss
     '@nuxtjs/tailwindcss',
     '@nuxtjs/composition-api',
-    '@nuxt/typescript-build',
     // 'nuxt-typed-vuex'
   ],
 
@@ -43,7 +42,7 @@ export default {
     // https://go.nuxtjs.dev/axios
     '@nuxtjs/axios',
     ['@nuxtjs/dotenv',
-      { filename: process.env.NODE_ENV !== 'prod' ? '.env_dev' : '.env_prod' }]
+      { filename: `.env_${process.env.NODE_ENV}` }]
   ],
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
@@ -55,5 +54,9 @@ export default {
 
   env: {
     FIRESTORE_EMULATOR_HOST: process.env.FIRESTORE_EMULATOR_HOST,
+    NODE_ENV: process.env.NODE_ENV
+  },
+  router: {
+    middleware: 'auth'
   }
 }

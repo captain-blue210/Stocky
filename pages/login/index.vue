@@ -8,7 +8,7 @@
       </label>
       <input
         id="mail"
-        v-model="mail"
+        v-model="user.mail"
         class="shadow appearance-none border rounded w-full py-2 px-3 text-grey-darker"
         type="email"
         placeholder="メールアドレス"
@@ -23,7 +23,7 @@
       </label>
       <input
         id="password"
-        v-model="password"
+        v-model="user.password"
         class="shadow appearance-none border border-red rounded w-full py-2 px-3 text-grey-darker mb-3"
         type="password"
         placeholder="パスワード"
@@ -42,12 +42,7 @@
 </template>
 
 <script lang="ts">
-import {
-  defineComponent,
-  reactive,
-  toRefs,
-  useContext,
-} from '@nuxtjs/composition-api';
+import { defineComponent, reactive, useRouter } from '@nuxtjs/composition-api';
 import { useLogin, User } from '~/compositions/user';
 
 export default defineComponent({
@@ -59,15 +54,14 @@ export default defineComponent({
     });
 
     const { login } = useLogin();
-    const { app } = useContext();
-
+    const router = useRouter();
     const submit = async () => {
-      console.log(user.mail, user.password);
       await login(user.mail, user.password);
-      await app.router!.push('/');
+      router.push('/');
     };
+
     return {
-      ...toRefs(user),
+      user,
       submit,
     };
   },
