@@ -48,6 +48,7 @@ import { useLogin, User } from '~/compositions/user';
 export default defineComponent({
   setup() {
     const user: User = reactive({
+      userID: '',
       name: '',
       mail: '',
       password: '',

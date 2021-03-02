@@ -19,6 +19,7 @@ export default defineNuxtPlugin(async (context, inject) => {
         currentUser.value = null;
       } else {
         currentUser.value = {
+          userID: user.uid,
           name: user?.displayName!,
           mail: user?.email!,
           password: ''!,

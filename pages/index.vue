@@ -10,20 +10,27 @@
       </thead>
       <tbody class="text-center divide-y-2">
         <tr>
-          <td><input v-model="food.foodName" type="text" name="name" /></td>
           <td>
-            <input v-model="food.expiryDate" type="date" name="expiryDate" />
+            <input v-model="item.foodName" type="text" name="name" />
+          </td>
+          <td>
+            <input v-model="item.expiryDate" type="date" name="expiryDate" />
           </td>
           <td>
             <input
-              v-model="food.notificationDate"
+              v-model="item.notificationDate"
               type="date"
-              name="check-date"
+              name="notificationDate"
             />
           </td>
           <td>
-            <button @click="registFood(food)">登録</button>
+            <button @click="submit">登録</button>
           </td>
+        </tr>
+        <tr v-for="food in foods" :key="food.foodID">
+          <td>{{ food.foodName }}</td>
+          <td>{{ food.expiryDate }}</td>
+          <td>{{ food.notificationDate }}</td>
         </tr>
       </tbody>
     </table>
@@ -31,17 +38,33 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive } from '@nuxtjs/composition-api';
-import { useEmptyFood, useRegistFood } from '~/compositions/food';
+import { defineComponent, ref, useFetch } from '@nuxtjs/composition-api';
+import { useEmptyFood, useFoods, useRegistFood } from '~/compositions/food';
+import { useCurrentUser } from '~/compositions/user';
 
 export default defineComponent({
-  middleware: ['auth'],
   setup() {
-    const food = reactive(useEmptyFood());
+    const { currentUser } = useCurrentUser();
+    const item = ref(useEmptyFood());
+
+    const foods = ref({});
+    useFetch(async () => {
+      const result = await useFoods(currentUser?.value?.userID);
+      foods.value = result;
+    });
+
     const { registFood } = useRegistFood();
+    const submit = () => {
+      registFood(item.value, currentUser?.value?.userID);
+      item.value = useEmptyFood();
+    };
+
     return {
-      food,
+      item,
       registFood,
+      currentUser,
+      foods,
+      submit,
     };
   },
 });
