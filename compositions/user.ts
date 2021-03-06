@@ -38,6 +38,7 @@ export const useSignup = () => {
     }
 
     await db.collection('users').doc(uid).set({
+      email: res.user?.email,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
     });
