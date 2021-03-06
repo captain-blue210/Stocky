@@ -12,7 +12,7 @@ export default {
     ],
     link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
   },
-  mode: 'spa',
+  ssr: false,
 
   // Global CSS: https://go.nuxtjs.dev/config-css
   css: [],
@@ -20,7 +20,7 @@ export default {
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
     { src: '~/plugins/firebase.ts' },
-    { src: '~/plugins/firebase-auth.ts' }
+    { src: '~/plugins/firebase-auth.ts' },
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
@@ -42,22 +42,20 @@ export default {
   modules: [
     // https://go.nuxtjs.dev/axios
     '@nuxtjs/axios',
-    ['@nuxtjs/dotenv',
-      { filename: `.env_${process.env.NODE_ENV}` }]
+    ['@nuxtjs/dotenv', { filename: `.env_${process.env.NODE_ENV}` }],
   ],
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {},
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
-  build: {
-  },
+  build: {},
 
   env: {
     FIRESTORE_EMULATOR_HOST: process.env.FIRESTORE_EMULATOR_HOST,
-    NODE_ENV: process.env.NODE_ENV
+    NODE_ENV: process.env.NODE_ENV,
   },
   router: {
-    middleware: 'auth'
-  }
-}
+    middleware: 'auth',
+  },
+};
