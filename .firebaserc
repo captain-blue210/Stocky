@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "stocky-3a86f"
+    "default": "stocky-3a86f",
+    "prod": "stocky-3a86f"
   }
 }

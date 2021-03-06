@@ -11,7 +11,7 @@
   },
   "hosting": {
     "site": "stocky-blue210",
-    "public": "public",
+    "public": "dist",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
   },
   "storage": {

@@ -9,9 +9,8 @@ module.exports = {
     'plugin:nuxt/recommended',
     'prettier',
     'prettier/vue',
-    'prettier/@typescript-eslint'
+    'prettier/@typescript-eslint',
   ],
-  plugins: [],
   // add your custom rules here
   rules: {},
-}
+};
