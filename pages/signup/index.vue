@@ -54,10 +54,10 @@ export default defineComponent({
       password: '',
     });
 
+    const router = useRouter();
     const { signup } = useSignup();
     const submit = () => {
       signup(user.mail, user.password);
-      const router = useRouter();
       router.push('/');
     };
 
