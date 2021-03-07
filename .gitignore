@@ -90,4 +90,6 @@ sw.*
 *.swp
 
 .env_dev
-.env_prod
+.env_production
+
+.firebase
