@@ -5,11 +5,13 @@ import * as functions from 'firebase-functions';
 
 const db = admin.initializeApp().firestore();
 sgMail.setApiKey(functions.config().sendgrid.key);
+const timezone = 'Asia/Tokyo';
+process.env.TZ = timezone;
 
 exports.dailyNotificationSender = functions
   .region('asia-northeast1')
   .pubsub.schedule('0 10 * * *')
-  .timeZone('Asia/Tokyo')
+  .timeZone(timezone)
   .onRun(async (context) => {
     const jst = new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' });
     const todayStart = new Date(jst);
