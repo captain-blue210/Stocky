@@ -1,14 +1,15 @@
 <template>
   <header class="bg-teal-500 text-white body-font">
-    <div
-      class="container mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center"
-    >
+    <div class="flex flex-wrap p-3 flex-col md:flex-row items-center">
       <a class="flex title-font font-medium items-center mb-4 md:mb-0">
-        <span class="ml-3 text-2xl">Stocky</span>
+        <span class="text-2xl ml-3">Stocky</span>
       </a>
       <nav
         class="md:ml-auto flex flex-wrap items-center text-base justify-center"
       >
+        <nuxt-link v-if="!currentUser" to="/signup" class="mr-5"
+          >ユーザー登録</nuxt-link
+        >
         <button
           v-if="!currentUser"
           class="mr-5 text-teal-500 bg-white py-2 px-4 font-bold rounded"
@@ -20,7 +21,7 @@
           <button
             id="user-menu"
             v-click-outside="hideDropdown"
-            class="mr-5"
+            class="mr-3"
             aria-haspopup="true"
             @click="isDropdownOpen = !isDropdownOpen"
           >

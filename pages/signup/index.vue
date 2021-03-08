@@ -26,7 +26,7 @@
         v-model="user.password"
         class="shadow appearance-none border border-red rounded w-full py-2 px-3 text-grey-darker mb-3"
         type="password"
-        placeholder="パスワードを入力してください"
+        placeholder="パスワード"
       />
     </div>
     <div class="flex items-center justify-between">
