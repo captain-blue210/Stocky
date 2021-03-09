@@ -1,9 +1,12 @@
 <template>
   <header class="bg-teal-500 text-white body-font">
     <div class="flex flex-wrap p-3 flex-col md:flex-row items-center">
-      <a class="flex title-font font-medium items-center mb-4 md:mb-0">
+      <nuxt-link
+        to="/"
+        class="flex title-font font-medium items-center mb-4 md:mb-0"
+      >
         <span class="text-2xl ml-3">Stocky</span>
-      </a>
+      </nuxt-link>
       <nav
         class="md:ml-auto flex flex-wrap items-center text-base justify-center"
       >
