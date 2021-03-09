@@ -2,6 +2,7 @@
   <div
     class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 flex flex-col h-screen"
   >
+    <p v-if="error" class="text-red-500">{{ error.message }}</p>
     <div class="mb-4">
       <label class="block text-grey-darker text-sm font-bold mb-2" for="mail">
         メールアドレス
@@ -42,8 +43,18 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, useRouter } from '@nuxtjs/composition-api';
-import { User, useSignup } from '~/compositions/user';
+import {
+  defineComponent,
+  reactive,
+  ref,
+  useRouter,
+} from '@nuxtjs/composition-api';
+import {
+  User,
+  useSignup,
+  EmailNotEnteredError,
+  PasswordNotEnteredError,
+} from '~/compositions/user';
 
 export default defineComponent({
   setup() {
@@ -53,16 +64,29 @@ export default defineComponent({
       mail: '',
       password: '',
     });
-
+    const error = ref<object | null>(null);
     const router = useRouter();
     const { signup } = useSignup();
-    const submit = () => {
-      signup(user.mail, user.password);
-      router.push('/');
+
+    const submit = async () => {
+      try {
+        await signup(user.mail, user.password);
+        if (error) error.value = null;
+        router.push('/');
+      } catch (e) {
+        if (e instanceof EmailNotEnteredError) error.value = e;
+        if (e instanceof PasswordNotEnteredError) error.value = e;
+        if (e.code) {
+          error.value = new Error(
+            'ユーザー登録できませんでした。お手数ですが再度お試しください。',
+          );
+        }
+      }
     };
 
     return {
       user,
+      error,
       submit,
     };
   },

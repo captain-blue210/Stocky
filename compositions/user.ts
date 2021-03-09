@@ -24,24 +24,36 @@ export const useCurrentUser = () => {
 
 export const useSignup = () => {
   const signup = async (mail: string, password: string) => {
+    if (!mail)
+      throw new EmailNotEnteredError('メールアドレスを入力してください。');
+    if (!password)
+      throw new PasswordNotEnteredError('パスワードを入力してください。');
+
     const auth = firebase.auth();
 
     if (process.env.NODE_ENV === 'dev') {
       auth.useEmulator('http://localhost:9099');
     }
-    const res = await auth.createUserWithEmailAndPassword(mail, password);
-    const uid = res.user?.uid;
 
-    const db = firebase.firestore();
-    if (process.env.NODE_ENV === 'dev') {
-      db.useEmulator('localhost', 8080);
-    }
+    await auth
+      .createUserWithEmailAndPassword(mail, password)
+      .then(async (res) => {
+        const uid = res.user?.uid;
 
-    await db.collection('users').doc(uid).set({
-      email: res.user?.email,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-    });
+        const db = firebase.firestore();
+        if (process.env.NODE_ENV === 'dev') {
+          db.useEmulator('localhost', 8080);
+        }
+
+        await db.collection('users').doc(uid).set({
+          email: res.user?.email,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        });
+      })
+      .catch((error) => {
+        throw error;
+      });
   };
   return { signup };
 };
@@ -67,3 +79,19 @@ export const useLogout = () => {
   };
   return { logout };
 };
+
+export const useUserValidation = () => {};
+
+export class EmailNotEnteredError extends Error {
+  constructor(message = 'メールアドレスを入力してください') {
+    super(message);
+    this.name = 'EmailNotEnteredError';
+  }
+}
+
+export class PasswordNotEnteredError extends Error {
+  constructor(message = 'パスワードを入力してください') {
+    super(message);
+    this.name = 'PasswordNotEnteredError';
+  }
+}
