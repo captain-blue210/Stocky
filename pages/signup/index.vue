@@ -52,7 +52,7 @@ import {
 import {
   User,
   useSignup,
-  useUserValidation,
+  useEmailAndPasswordValidation,
   EmailNotEnteredError,
   PasswordNotEnteredError,
 } from '~/compositions/user';
@@ -68,7 +68,7 @@ export default defineComponent({
     const error = ref<object | null>(null);
     const router = useRouter();
     const { signup } = useSignup();
-    const { validateEmailAndPassword } = useUserValidation();
+    const { validateEmailAndPassword } = useEmailAndPasswordValidation();
 
     const submit = async () => {
       try {

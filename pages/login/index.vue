@@ -54,7 +54,7 @@ import {
   PasswordNotEnteredError,
   useLogin,
   User,
-  useUserValidation,
+  useEmailAndPasswordValidation,
 } from '~/compositions/user';
 
 export default defineComponent({
@@ -66,7 +66,7 @@ export default defineComponent({
       password: '',
     });
     const { login } = useLogin();
-    const { validateEmailAndPassword } = useUserValidation();
+    const { validateEmailAndPassword } = useEmailAndPasswordValidation();
     const router = useRouter();
     const error = ref<object | null>(null);
 
