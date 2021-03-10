@@ -37,16 +37,46 @@
     <table class="w-full m-3 border-collapse">
       <thead class="border-b-2 border-gray-500 mx-3">
         <tr>
-          <th>商品名</th>
+          <th>食品名</th>
           <th>消費期限</th>
           <th>見直し日</th>
         </tr>
       </thead>
       <tbody class="text-center divide-y-2">
         <tr v-for="food in foods" :key="food.foodID">
-          <td>{{ food.foodName }}</td>
-          <td>{{ food.expiryDate }}</td>
-          <td>{{ food.notificationDate }}</td>
+          <td v-if="!food.canEdit" @click="toggleEditState(food.foodID)">
+            {{ food.foodName }}
+          </td>
+          <td v-else>
+            <input
+              v-model="food.foodName"
+              type="text"
+              name="name"
+              @blur="update(food.foodID)"
+            />
+          </td>
+          <td v-if="!food.canEdit" @click="toggleEditState(food.foodID)">
+            {{ food.expiryDate }}
+          </td>
+          <td v-else>
+            <input
+              v-model="food.expiryDate"
+              type="date"
+              name="expiryDate"
+              @blur="update(food.foodID)"
+            />
+          </td>
+          <td v-if="!food.canEdit" @click="toggleEditState(food.foodID)">
+            {{ food.notificationDate }}
+          </td>
+          <td v-else>
+            <input
+              v-model="food.notificationDate"
+              type="date"
+              name="notificationDate"
+              @blur="update(food.foodID)"
+            />
+          </td>
         </tr>
       </tbody>
     </table>
@@ -56,12 +86,19 @@
 <script lang="ts">
 import { defineComponent, ref, useFetch } from '@nuxtjs/composition-api';
 import {
+  Food,
+  FoodNameNotEnteredError,
   useEmptyFood,
   useFoodNameValidation,
   useFoods,
   useRegistFood,
+  useUpdateFood,
 } from '~/compositions/food';
-import { useCurrentUser } from '~/compositions/user';
+import {
+  useCurrentUser,
+  UserIDNotExistsError,
+  useUserIDValidation,
+} from '~/compositions/user';
 
 export default defineComponent({
   setup() {
@@ -69,11 +106,26 @@ export default defineComponent({
     const item = ref(useEmptyFood());
     const error = ref<object | null>(null);
     const { validateFoodname } = useFoodNameValidation();
+    const { validateUserID } = useUserIDValidation();
 
-    const foods = ref({});
+    const foods = ref([] as Food[]);
     useFetch(async () => {
-      const result = await useFoods(currentUser?.value?.userID);
-      foods.value = result;
+      try {
+        validateUserID(currentUser?.value);
+        const result = await useFoods(currentUser?.value?.userID);
+        foods.value = result;
+      } catch (e) {
+        if (
+          e instanceof UserIDNotExistsError ||
+          e instanceof FoodNameNotEnteredError
+        )
+          error.value = e;
+        if (e.code) {
+          error.value = new Error(
+            '非常食リストを取得できませんでした。お手数ですが再度お試しください。',
+          );
+        }
+      }
     });
 
     const { registFood } = useRegistFood();
@@ -88,12 +140,46 @@ export default defineComponent({
       }
     };
 
+    const toggleEditState = (foodID: string) => {
+      foods.value = foods.value.map((food) => {
+        if (food.foodID === foodID) {
+          food.canEdit = !food.canEdit;
+        }
+        return food;
+      });
+    };
+
+    const { updateFood } = useUpdateFood();
+    const update = async (foodID: string) => {
+      try {
+        const food = foods.value.find((food) => food.foodID === foodID) as Food;
+        const foodName = food.foodName as string;
+        validateFoodname(foodName);
+        validateUserID(currentUser?.value);
+        await updateFood(food, currentUser?.value?.userID);
+      } catch (e) {
+        if (
+          e instanceof UserIDNotExistsError ||
+          e instanceof FoodNameNotEnteredError
+        )
+          error.value = e;
+        if (e.code) {
+          error.value = new Error(
+            '非常食の情報を更新できませんでした。お手数ですが再度お試しください。',
+          );
+        }
+      }
+      toggleEditState(foodID);
+    };
+
     return {
       item,
       registFood,
       currentUser,
       foods,
       submit,
+      toggleEditState,
+      update,
       error,
     };
   },

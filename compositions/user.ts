@@ -78,15 +78,27 @@ export const useLogout = () => {
   return { logout };
 };
 
-export const useUserValidation = () => {
+export const useUserIDValidation = () => {
+  const validateUserID = (user: User | null | undefined) => {
+    if (!user || !user.userID) throw new UserIDNotExistsError();
+  };
+  return { validateUserID };
+};
+
+export const useEmailAndPasswordValidation = () => {
   const validateEmailAndPassword = (mail: string, password: string) => {
-    if (!mail)
-      throw new EmailNotEnteredError('メールアドレスを入力してください。');
-    if (!password)
-      throw new PasswordNotEnteredError('パスワードを入力してください。');
+    if (!mail) throw new EmailNotEnteredError();
+    if (!password) throw new PasswordNotEnteredError();
   };
   return { validateEmailAndPassword };
 };
+
+export class UserIDNotExistsError extends Error {
+  constructor(message = 'UserIDがありません') {
+    super(message);
+    this.name = 'UserIDNotExistsError';
+  }
+}
 
 export class EmailNotEnteredError extends Error {
   constructor(message = 'メールアドレスを入力してください') {

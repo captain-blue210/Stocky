@@ -9,6 +9,7 @@ export type Food = {
   notificationDate: string | null;
   createdAt: Date | null;
   updatedAt: Date | null;
+  canEdit: boolean;
 };
 
 // export const FoodsKey: InjectionKey<Ref<Food[]>> = Symbol('FoodsKey');
@@ -26,16 +27,13 @@ export const useEmptyFood = (): Food => {
     notificationDate: format(addYears(new Date(), 1), 'yyyy-MM-dd'),
     createdAt: null,
     updatedAt: null,
+    canEdit: true,
   };
   return food;
 };
 
 export const useRegistFood = () => {
   const registFood = async (food: Food, userID: string | undefined) => {
-    if (!food.foodName) {
-      throw new FoodNameNotEnteredError();
-    }
-
     const [expiryDateYear, expiryDateMonth, expiryDateDate] =
       food.expiryDate?.split('-').map((elm) => parseInt(elm)) ||
       ([] as number[]);
@@ -70,11 +68,49 @@ export const useRegistFood = () => {
   return { registFood };
 };
 
+export const useUpdateFood = () => {
+  const updateFood = async (food: Food, userID: string | undefined) => {
+    if (!userID || !food.foodID) {
+      throw new Error('userID or foodID is undefined');
+    }
+
+    const [expiryDateYear, expiryDateMonth, expiryDateDate] =
+      food.expiryDate?.split('-').map((elm) => parseInt(elm)) ||
+      ([] as number[]);
+
+    const [notificationDateYear, notificationDateMonth, notificationDateDate] =
+      food.notificationDate?.split('-').map((elm) => parseInt(elm)) ||
+      ([] as number[]);
+
+    await db
+      .collection('users')
+      .doc(userID)
+      .collection('foods')
+      .doc(food.foodID)
+      .update({
+        foodName: food.foodName,
+        expiryDate: firebase.firestore.Timestamp.fromDate(
+          new Date(expiryDateYear, expiryDateMonth - 1, expiryDateDate),
+        ),
+        notificationDate: firebase.firestore.Timestamp.fromDate(
+          new Date(
+            notificationDateYear,
+            notificationDateMonth - 1,
+            notificationDateDate,
+          ),
+        ),
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      })
+      .catch((e) => {
+        throw e;
+      });
+  };
+  return { updateFood };
+};
+
 export const useFoods = (userID: string | undefined) => {
   const foods: Food[] = [];
-  if (!userID) {
-    throw new Error('userID is undefined');
-  }
 
   db.collection('users')
     .doc(userID)
@@ -95,6 +131,7 @@ export const useFoods = (userID: string | undefined) => {
             ),
             createdAt: change.doc.data().createdAt,
             updatedAt: change.doc.data().updatedAt,
+            canEdit: false,
           });
         }
       });
