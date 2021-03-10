@@ -32,6 +32,10 @@ export const useEmptyFood = (): Food => {
 
 export const useRegistFood = () => {
   const registFood = async (food: Food, userID: string | undefined) => {
+    if (!food.foodName) {
+      throw new FoodNameNotEnteredError();
+    }
+
     const [expiryDateYear, expiryDateMonth, expiryDateDate] =
       food.expiryDate?.split('-').map((elm) => parseInt(elm)) ||
       ([] as number[]);
@@ -47,17 +51,20 @@ export const useRegistFood = () => {
       .add({
         foodName: food.foodName,
         expiryDate: firebase.firestore.Timestamp.fromDate(
-          new Date(expiryDateYear, expiryDateMonth, expiryDateDate),
+          new Date(expiryDateYear, expiryDateMonth - 1, expiryDateDate),
         ),
         notificationDate: firebase.firestore.Timestamp.fromDate(
           new Date(
             notificationDateYear,
-            notificationDateMonth,
+            notificationDateMonth - 1,
             notificationDateDate,
           ),
         ),
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
         updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      })
+      .catch((e) => {
+        throw e;
       });
   };
   return { registFood };
@@ -95,3 +102,17 @@ export const useFoods = (userID: string | undefined) => {
 
   return foods;
 };
+
+export const useFoodNameValidation = () => {
+  const validateFoodname = (foodName: string) => {
+    if (!foodName) throw new FoodNameNotEnteredError();
+  };
+  return { validateFoodname };
+};
+
+export class FoodNameNotEnteredError extends Error {
+  constructor(message = '食品名を入力してください') {
+    super(message);
+    this.name = 'FoodNameNotEnteredError';
+  }
+}

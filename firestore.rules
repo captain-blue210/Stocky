@@ -1,19 +1,39 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if false;
-    }
+    // match /{document=**} {
+    //   allow read, write: if false;
+    // }
 
     match /users/{userID} {
-      allow get, list: if isAuthenticatedUser(userID);
-      allow create: if isAuthenticatedUser(userID);
+      allow get, list: if isAuthenticated()
+        && isAuthenticatedUser(userID);
+      allow create: if isAuthenticatedUser(userID)
+        && validateUserField(request.resource.data)
+        && (request.resource.data.email is string && request.resource.data.email.size() <= 255)
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
     }
 
     match /users/{userID} {
       match /foods/{foodsID} {
-      allow get, list: if isAuthenticatedUser(userID);
-      allow create: if isAuthenticatedUser(userID);
+      allow get, list: if isAuthenticated() && isAuthenticatedUser(userID)
+        && isAuthenticatedUser(userID);
+      allow create: if isAuthenticated()
+        && isAuthenticatedUser(userID)
+        //&& validateFoodField(request.resource.data)
+        && (request.resource.data.foodName is string && ( request.resource.data.foodName.size() > 0 && request.resource.data.foodName.size() <= 512))
+        && request.resource.data.expiryDate is timestamp
+        && request.resource.data.notificationDate is timestamp
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+      allow update: if isAuthenticated()
+        && isAuthenticatedUser(userID)
+        && (request.resource.data.foodName is string && ( request.resource.data.foodName.size() > 0 && request.resource.data.foodName.size() <= 512))
+        && request.resource.data.expiryDate is timestamp
+        && request.resource.data.notificationDate is timestamp
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
       }
     }
 
@@ -26,8 +46,30 @@ service cloud.firestore {
       return request.auth.uid == userID;
     }
 
-    function documentPath(paths) {
-      return path([['databases', database, 'documents'].join('/'), paths.join('/')].join('/'));
+    // function documentPath(paths) {
+    //   return path([['databases', database, 'documents'].join('/'), paths.join('/')].join('/'));
+    // }
+
+    function validateUserField(data) {
+      let keys = data.keys();
+      let fields = [
+        'email',
+        'cratedAt',
+        'updatedAt',
+      ];
+      return keys.hasAll(fields) && keys.hasOnly(fields);
     }
+
+    // function validateFoodField(data) {
+    //   let keys = data.keys();
+    //   let fields = [
+    //     'foodName',
+    //     'expiryDate',
+    //     'notificationDate',
+    //     'cratedAt',
+    //     'updatedAt',
+    //   ];
+    //   return keys.hasAll(fields) && keys.hasOnly(fields);
+    // }
   }
 }

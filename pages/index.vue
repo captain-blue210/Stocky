@@ -1,8 +1,11 @@
 <template>
   <div class="h-screen">
+    <p v-if="error" class="text-red-500 ml-3">
+      {{ error.message }}
+    </p>
     <div class="mb-12 flex flex-row mx-3">
       <div class="flex flex-col flex-auto m-2">
-        <label for="name" class="text-gray-700">商品名</label>
+        <label for="name" class="text-gray-700">食品名</label>
         <input
           v-model="item.foodName"
           type="text"
@@ -52,13 +55,20 @@
 
 <script lang="ts">
 import { defineComponent, ref, useFetch } from '@nuxtjs/composition-api';
-import { useEmptyFood, useFoods, useRegistFood } from '~/compositions/food';
+import {
+  useEmptyFood,
+  useFoodNameValidation,
+  useFoods,
+  useRegistFood,
+} from '~/compositions/food';
 import { useCurrentUser } from '~/compositions/user';
 
 export default defineComponent({
   setup() {
     const { currentUser } = useCurrentUser();
     const item = ref(useEmptyFood());
+    const error = ref<object | null>(null);
+    const { validateFoodname } = useFoodNameValidation();
 
     const foods = ref({});
     useFetch(async () => {
@@ -67,9 +77,15 @@ export default defineComponent({
     });
 
     const { registFood } = useRegistFood();
-    const submit = () => {
-      registFood(item.value, currentUser?.value?.userID);
-      item.value = useEmptyFood();
+    const submit = async () => {
+      try {
+        const foodName = item.value.foodName as string;
+        validateFoodname(foodName);
+        await registFood(item.value, currentUser?.value?.userID);
+        item.value = useEmptyFood();
+      } catch (e) {
+        error.value = e;
+      }
     };
 
     return {
@@ -78,6 +94,7 @@ export default defineComponent({
       currentUser,
       foods,
       submit,
+      error,
     };
   },
 });

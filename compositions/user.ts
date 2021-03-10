@@ -24,11 +24,6 @@ export const useCurrentUser = () => {
 
 export const useSignup = () => {
   const signup = async (mail: string, password: string) => {
-    if (!mail)
-      throw new EmailNotEnteredError('メールアドレスを入力してください。');
-    if (!password)
-      throw new PasswordNotEnteredError('パスワードを入力してください。');
-
     const auth = firebase.auth();
 
     if (process.env.NODE_ENV === 'dev') {
@@ -51,8 +46,8 @@ export const useSignup = () => {
           updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
         });
       })
-      .catch((error) => {
-        throw error;
+      .catch((e) => {
+        throw e;
       });
   };
   return { signup };
@@ -64,7 +59,10 @@ export const useLogin = () => {
     if (process.env.NODE_ENV === 'dev') {
       auth.useEmulator('http://localhost:9099');
     }
-    await auth.signInWithEmailAndPassword(mail, password);
+
+    await auth.signInWithEmailAndPassword(mail, password).catch((e) => {
+      throw e;
+    });
   };
   return { login };
 };
@@ -80,7 +78,15 @@ export const useLogout = () => {
   return { logout };
 };
 
-export const useUserValidation = () => {};
+export const useUserValidation = () => {
+  const validateEmailAndPassword = (mail: string, password: string) => {
+    if (!mail)
+      throw new EmailNotEnteredError('メールアドレスを入力してください。');
+    if (!password)
+      throw new PasswordNotEnteredError('パスワードを入力してください。');
+  };
+  return { validateEmailAndPassword };
+};
 
 export class EmailNotEnteredError extends Error {
   constructor(message = 'メールアドレスを入力してください') {

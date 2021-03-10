@@ -52,6 +52,7 @@ import {
 import {
   User,
   useSignup,
+  useUserValidation,
   EmailNotEnteredError,
   PasswordNotEnteredError,
 } from '~/compositions/user';
@@ -67,15 +68,21 @@ export default defineComponent({
     const error = ref<object | null>(null);
     const router = useRouter();
     const { signup } = useSignup();
+    const { validateEmailAndPassword } = useUserValidation();
 
     const submit = async () => {
       try {
+        validateEmailAndPassword(user.mail, user.password);
         await signup(user.mail, user.password);
         if (error) error.value = null;
         router.push('/');
       } catch (e) {
-        if (e instanceof EmailNotEnteredError) error.value = e;
-        if (e instanceof PasswordNotEnteredError) error.value = e;
+        if (
+          e instanceof EmailNotEnteredError ||
+          e instanceof PasswordNotEnteredError
+        )
+          error.value = e;
+
         if (e.code) {
           error.value = new Error(
             'ユーザー登録できませんでした。お手数ですが再度お試しください。',
