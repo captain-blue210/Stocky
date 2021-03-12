@@ -40,13 +40,21 @@ export const useSignup = () => {
           db.useEmulator('localhost', 8080);
         }
 
-        await db.collection('users').doc(uid).set({
-          email: res.user?.email,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-        });
+        await db
+          .collection('users')
+          .doc(uid)
+          .set({
+            email: res.user?.email,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          })
+          .catch((e) => {
+            db.collection('users').doc(uid).delete();
+            throw e;
+          });
       })
       .catch((e) => {
+        auth.currentUser?.delete();
         throw e;
       });
   };
