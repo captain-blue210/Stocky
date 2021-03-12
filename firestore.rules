@@ -8,9 +8,7 @@ service cloud.firestore {
     match /users/{userID} {
       allow get, list: if isAuthenticated()
         && isAuthenticatedUser(userID);
-      allow create: if isAuthenticatedUser(userID)
-        && validateUserField(request.resource.data)
-        && (request.resource.data.email is string && request.resource.data.email.size() <= 255)
+      allow create: if (request.resource.data.email is string && request.resource.data.email.size() <= 255)
         && request.resource.data.createdAt == request.time
         && request.resource.data.updatedAt == request.time;
     }
@@ -50,15 +48,15 @@ service cloud.firestore {
     //   return path([['databases', database, 'documents'].join('/'), paths.join('/')].join('/'));
     // }
 
-    function validateUserField(data) {
-      let keys = data.keys();
-      let fields = [
-        'email',
-        'cratedAt',
-        'updatedAt',
-      ];
-      return keys.hasAll(fields) && keys.hasOnly(fields);
-    }
+    // function validateUserField(data) {
+    //   let keys = data.keys();
+    //   let fields = [
+    //     'email',
+    //     'cratedAt',
+    //     'updatedAt',
+    //   ];
+    //   return keys.hasAll(fields) && keys.hasOnly(fields);
+    // }
 
     // function validateFoodField(data) {
     //   let keys = data.keys();
