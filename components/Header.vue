@@ -1,27 +1,26 @@
 <template>
   <header class="bg-teal-500 text-white body-font">
-    <div class="flex flex-wrap p-3 flex-col md:flex-row items-center">
+    <div
+      class="container mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center"
+    >
       <nuxt-link
-        to="/"
         class="flex title-font font-medium items-center mb-4 md:mb-0"
+        to="/"
       >
-        <span class="text-2xl ml-3">Stocky</span>
+        <span class="ml-3 text-2xl">Stocky</span>
       </nuxt-link>
-      <nav
-        class="md:ml-auto flex flex-wrap items-center text-base justify-center"
-      >
-        <nuxt-link v-if="!currentUser" to="/signup" class="mr-5"
+      <nav class="md:ml-auto flex lg:w-25 flex-wrap items-center text-base">
+        <nuxt-link to="/signup" class="mr-5 hover:text-gray-900"
           >ユーザー登録</nuxt-link
         >
-        <button
+        <nuxt-link
           v-if="!currentUser"
-          class="mr-5 text-teal-500 bg-white py-2 px-4 font-bold rounded"
-          @click="goToLogin"
+          to="/login"
+          class="mr-5 hover:text-gray-900"
+          >ログイン</nuxt-link
         >
-          ログイン
-        </button>
         <div v-else>
-          <button
+          <a
             id="user-menu"
             v-click-outside="hideDropdown"
             class="mr-3"
@@ -29,7 +28,7 @@
             @click="isDropdownOpen = !isDropdownOpen"
           >
             {{ currentUser.mail }}
-          </button>
+          </a>
           <div
             v-show="isDropdownOpen"
             class="origin-top-right absolute right-0 mt-2 mr-10 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5"
@@ -63,9 +62,6 @@ export default defineComponent({
   setup() {
     const { currentUser } = useCurrentUser();
     const router = useRouter();
-    const goToLogin = () => {
-      router.push('/login');
-    };
     const { logout } = useLogout();
     const doLogout = async () => {
       await logout();
@@ -77,7 +73,7 @@ export default defineComponent({
       isDropdownOpen.value = false;
     };
 
-    return { goToLogin, currentUser, isDropdownOpen, hideDropdown, doLogout };
+    return { currentUser, isDropdownOpen, hideDropdown, doLogout };
   },
 });
 </script>
