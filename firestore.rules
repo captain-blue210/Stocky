@@ -30,7 +30,6 @@ service cloud.firestore {
         && (request.resource.data.foodName is string && ( request.resource.data.foodName.size() > 0 && request.resource.data.foodName.size() <= 512))
         && request.resource.data.expiryDate is timestamp
         && request.resource.data.notificationDate is timestamp
-        && request.resource.data.createdAt == request.time
         && request.resource.data.updatedAt == request.time;
       }
     }

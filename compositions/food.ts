@@ -4,11 +4,11 @@ import 'firebase/firestore';
 
 export type Food = {
   foodID: string;
-  foodName: string | null;
-  expiryDate: string | null;
-  notificationDate: string | null;
-  createdAt: Date | null;
-  updatedAt: Date | null;
+  foodName: string | undefined;
+  expiryDate: string | undefined;
+  notificationDate: string | undefined;
+  createdAt: Date | undefined;
+  updatedAt: Date | undefined;
   canEdit: boolean;
 };
 
@@ -25,9 +25,9 @@ export const useEmptyFood = (): Food => {
     foodName: '',
     expiryDate: format(new Date(), 'yyyy-MM-dd'),
     notificationDate: format(addYears(new Date(), 1), 'yyyy-MM-dd'),
-    createdAt: null,
-    updatedAt: null,
-    canEdit: true,
+    createdAt: undefined,
+    updatedAt: undefined,
+    canEdit: false,
   };
   return food;
 };
@@ -99,7 +99,6 @@ export const useUpdateFood = () => {
             notificationDateDate,
           ),
         ),
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
         updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
       })
       .catch((e) => {
@@ -115,27 +114,32 @@ export const useFoods = (userID: string | undefined) => {
   db.collection('users')
     .doc(userID)
     .collection('foods')
-    .onSnapshot((querySnapshot) => {
-      querySnapshot.docChanges().forEach((change) => {
-        if (change.type === 'added') {
-          foods.push({
-            foodID: change.doc.id,
-            foodName: change.doc.data().foodName,
-            expiryDate: format(
-              change.doc.data().expiryDate.toDate(),
-              'yyyy-MM-dd',
-            ),
-            notificationDate: format(
-              change.doc.data().notificationDate.toDate(),
-              'yyyy-MM-dd',
-            ),
-            createdAt: change.doc.data().createdAt,
-            updatedAt: change.doc.data().updatedAt,
-            canEdit: false,
-          });
-        }
-      });
-    });
+    .onSnapshot(
+      (querySnapshot) => {
+        querySnapshot.docChanges().forEach((change) => {
+          if (change.type === 'added') {
+            foods.push({
+              foodID: change.doc.id,
+              foodName: change.doc.data().foodName,
+              expiryDate: format(
+                change.doc.data().expiryDate.toDate(),
+                'yyyy-MM-dd',
+              ),
+              notificationDate: format(
+                change.doc.data().notificationDate.toDate(),
+                'yyyy-MM-dd',
+              ),
+              createdAt: change.doc.data().createdAt,
+              updatedAt: change.doc.data().updatedAt,
+              canEdit: false,
+            });
+          }
+        });
+      },
+      (error) => {
+        console.log(JSON.stringify(error));
+      },
+    );
 
   return foods;
 };
