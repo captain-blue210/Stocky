@@ -15,12 +15,13 @@ export default {
   ssr: false,
 
   // Global CSS: https://go.nuxtjs.dev/config-css
-  css: [],
+  css: ['@fortawesome/fontawesome-svg-core/styles.css'],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
     { src: '~/plugins/firebase.ts' },
     { src: '~/plugins/firebase-auth.ts' },
+    '~/plugins/fontawesome.ts',
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
@@ -55,6 +56,7 @@ export default {
     FIRESTORE_EMULATOR_HOST: process.env.FIRESTORE_EMULATOR_HOST,
     NODE_ENV: process.env.NODE_ENV,
   },
+
   router: {
     middleware: 'auth',
   },

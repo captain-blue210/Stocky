@@ -22,6 +22,7 @@
     }
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.34",
     "@nuxtjs/axios": "^5.12.5",
     "@nuxtjs/composition-api": "^0.20.2",
     "@nuxtjs/dotenv": "^1.4.1",
@@ -35,10 +36,13 @@
   },
   "devDependencies": {
     "@firebase/rules-unit-testing": "^1.2.0",
+    "@fortawesome/free-brands-svg-icons": "^5.15.2",
+    "@fortawesome/free-solid-svg-icons": "^5.15.2",
     "@nuxt/types": "^2.15.1",
     "@nuxt/typescript-build": "^2.0.5",
     "@nuxtjs/eslint-config-typescript": "^5.0.0",
     "@nuxtjs/eslint-module": "^3.0.2",
+    "@nuxtjs/fontawesome": "^1.1.2",
     "@nuxtjs/stylelint-module": "^4.0.0",
     "@nuxtjs/tailwindcss": "^3.4.2",
     "@tailwindcss/custom-forms": "^0.2.1",
