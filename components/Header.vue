@@ -9,8 +9,13 @@
       >
         <span class="ml-3 text-2xl">Stocky</span>
       </nuxt-link>
-      <nav class="md:ml-auto flex lg:w-25 flex-wrap items-center text-base">
-        <nuxt-link to="/signup" class="mr-5 hover:text-gray-900"
+      <nav
+        class="md:ml-auto flex lg:w-25 flex-wrap justify-center items-center text-base"
+      >
+        <nuxt-link
+          v-if="!currentUser"
+          to="/signup"
+          class="mr-5 hover:text-gray-900"
           >ユーザー登録</nuxt-link
         >
         <nuxt-link
@@ -23,7 +28,7 @@
           <a
             id="user-menu"
             v-click-outside="hideDropdown"
-            class="mr-3"
+            class="mr-3 cursor-pointer"
             aria-haspopup="true"
             @click="isDropdownOpen = !isDropdownOpen"
           >
