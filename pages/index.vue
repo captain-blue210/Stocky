@@ -1,40 +1,13 @@
 <template>
-  <div class="h-screen">
-    <p v-if="error" class="text-red-500 ml-3">
-      {{ error.message }}
-    </p>
-    <div class="mb-12 flex flex-row mx-3">
-      <div class="flex flex-col flex-auto m-2">
-        <label for="name" class="text-gray-700">食品名</label>
-        <input
-          v-model="item.foodName"
-          type="text"
-          name="name"
-          class="h-8 border-b-2 border-gray-700 focus:outline-none focus:border-teal-500"
-        />
-      </div>
-      <div class="flex flex-col flex-auto m-2">
-        <label for="name" class="text-gray-700 m-1">消費期限</label>
-        <input v-model="item.expiryDate" type="date" name="expiryDate" />
-      </div>
-      <div class="flex flex-col flex-auto m-2">
-        <label for="name" class="text-gray-700 m-1">見直し日</label>
-        <input
-          v-model="item.notificationDate"
-          type="date"
-          name="notificationDate"
-        />
-      </div>
-      <div class="flex flex-col m-2">
-        <button
-          class="bg-teal-500 hover:bg-teal-700 text-white font-bold mt-5 py-2 px-4 rounded"
-          @click="submit"
-        >
-          登録
-        </button>
-      </div>
-    </div>
-    <table class="w-full m-3 border-collapse">
+  <div class="container mx-auto h-screen">
+    <h1 class="text-xl m-3">
+      <font-awesome-icon
+        :icon="'list'"
+        size="lg"
+        class="text-teal-500 mr-2"
+      />非常食リスト
+    </h1>
+    <table class="w-full mt-3 border-collapse table-auto">
       <thead class="border-b-2 border-gray-500 mx-3">
         <tr>
           <th>食品名</th>
@@ -43,57 +16,38 @@
         </tr>
       </thead>
       <tbody class="text-center divide-y-2">
-        <tr v-for="food in foods" :key="food.foodID">
-          <td v-if="!food.canEdit" @click="toggleEditState(food.foodID)">
+        <tr
+          v-for="food in foods"
+          :key="food.foodID"
+          class="cursor-pointer"
+          @click="openUpdateModal(food.foodID)"
+        >
+          <td class="p-2">
             {{ food.foodName }}
           </td>
-          <td v-else>
-            <input
-              v-model="food.foodName"
-              type="text"
-              name="name"
-              @blur="update(food.foodID)"
-            />
-          </td>
-          <td v-if="!food.canEdit" @click="toggleEditState(food.foodID)">
+          <td>
             {{ food.expiryDate }}
           </td>
-          <td v-else>
-            <input
-              v-model="food.expiryDate"
-              type="date"
-              name="expiryDate"
-              @blur="update(food.foodID)"
-            />
-          </td>
-          <td v-if="!food.canEdit" @click="toggleEditState(food.foodID)">
+          <td>
             {{ food.notificationDate }}
           </td>
-          <td v-else>
-            <input
-              v-model="food.notificationDate"
-              type="date"
-              name="notificationDate"
-              @blur="update(food.foodID)"
-            />
-          </td>
+          <update-modal
+            v-show="food.canEdit"
+            :food="food"
+            @close-update-modal="closeUpdateModal"
+          />
         </tr>
       </tbody>
     </table>
+    <input-modal />
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, useFetch } from '@nuxtjs/composition-api';
-import {
-  Food,
-  FoodNameNotEnteredError,
-  useEmptyFood,
-  useFoodNameValidation,
-  useFoods,
-  useRegistFood,
-  useUpdateFood,
-} from '~/compositions/food';
+import InputModal from '@/components/InputModal.vue';
+import UpdateModal from '@/components/UpdateModal.vue';
+import { Food, FoodNameNotEnteredError, useFoods } from '~/compositions/food';
 import {
   useCurrentUser,
   UserIDNotExistsError,
@@ -101,11 +55,13 @@ import {
 } from '~/compositions/user';
 
 export default defineComponent({
+  components: {
+    InputModal,
+    UpdateModal,
+  },
   setup() {
     const { currentUser } = useCurrentUser();
-    const item = ref(useEmptyFood());
     const error = ref<object | null>(null);
-    const { validateFoodname } = useFoodNameValidation();
     const { validateUserID } = useUserIDValidation();
 
     const foods = ref([] as Food[]);
@@ -128,59 +84,32 @@ export default defineComponent({
       }
     });
 
-    const { registFood } = useRegistFood();
-    const submit = async () => {
-      try {
-        const foodName = item.value.foodName as string;
-        validateFoodname(foodName);
-        await registFood(item.value, currentUser?.value?.userID);
-        item.value = useEmptyFood();
-      } catch (e) {
-        error.value = e;
-      }
-    };
-
-    const toggleEditState = (foodID: string) => {
+    const openUpdateModal = (foodID: string) => {
       foods.value = foods.value.map((food) => {
         if (food.foodID === foodID) {
-          food.canEdit = !food.canEdit;
+          food.canEdit = true;
         }
         return food;
       });
     };
 
-    const { updateFood } = useUpdateFood();
-    const update = async (foodID: string) => {
-      try {
-        const food = foods.value.find((food) => food.foodID === foodID) as Food;
-        const foodName = food.foodName as string;
-        validateFoodname(foodName);
-        validateUserID(currentUser?.value);
-        await updateFood(food, currentUser?.value?.userID);
-      } catch (e) {
-        if (
-          e instanceof UserIDNotExistsError ||
-          e instanceof FoodNameNotEnteredError
-        )
-          error.value = e;
-        if (e.code) {
-          error.value = new Error(
-            '非常食の情報を更新できませんでした。お手数ですが再度お試しください。',
-          );
+    const closeUpdateModal = async (foodID: string) => {
+      foods.value = foods.value.map((food) => {
+        if (food.foodID === foodID) {
+          food.canEdit = false;
         }
-      }
-      toggleEditState(foodID);
+        return food;
+      });
+      const result = await useFoods(currentUser?.value?.userID);
+      foods.value = result;
     };
 
     return {
-      item,
-      registFood,
       currentUser,
       foods,
-      submit,
-      toggleEditState,
-      update,
       error,
+      openUpdateModal,
+      closeUpdateModal,
     };
   },
 });
