@@ -84,6 +84,8 @@ export default defineComponent({
           error.value = e;
 
         if (e.code) {
+          console.log(e.message);
+
           error.value = new Error(
             'ユーザー登録できませんでした。お手数ですが再度お試しください。',
           );

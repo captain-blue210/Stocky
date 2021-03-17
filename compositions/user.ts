@@ -63,14 +63,19 @@ export const useSignup = () => {
 
 export const useLogin = () => {
   const login = async (mail: string, password: string) => {
-    const auth = firebase.auth();
-    if (process.env.NODE_ENV === 'dev') {
-      auth.useEmulator('http://localhost:9099');
-    }
+    await firebase
+      .auth()
+      .setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+      .then(async () => {
+        const auth = firebase.auth();
+        if (process.env.NODE_ENV === 'dev') {
+          auth.useEmulator('http://localhost:9099');
+        }
 
-    await auth.signInWithEmailAndPassword(mail, password).catch((e) => {
-      throw e;
-    });
+        await auth.signInWithEmailAndPassword(mail, password).catch((e) => {
+          throw e;
+        });
+      });
   };
   return { login };
 };

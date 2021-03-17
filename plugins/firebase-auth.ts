@@ -9,7 +9,7 @@ import firebase from 'firebase/app';
 import 'firebase/auth';
 import { CurrentUser, User } from '~/compositions/user';
 
-export default defineNuxtPlugin(async (context, inject) => {
+export default defineNuxtPlugin(async ({ app }, inject) => {
   const currentUser = ref<User | null>(null);
   inject('currentUser', currentUser);
 
