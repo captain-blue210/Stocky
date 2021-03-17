@@ -117,7 +117,7 @@ export const useFoods = (userID: string | undefined) => {
     .onSnapshot(
       (querySnapshot) => {
         querySnapshot.docChanges().forEach((change) => {
-          if (change.type === 'added') {
+          if (change.type === 'added' || change.type === 'removed') {
             foods.push({
               foodID: change.doc.id,
               foodName: change.doc.data().foodName,
@@ -142,6 +142,20 @@ export const useFoods = (userID: string | undefined) => {
     );
 
   return foods;
+};
+
+export const useDeleteFoods = () => {
+  const deleteFoods = (userID: string | undefined, foodsIDs: string[]) => {
+    foodsIDs.forEach(async (foodID) => {
+      await db
+        .collection('users')
+        .doc(userID)
+        .collection('foods')
+        .doc(foodID)
+        .delete();
+    });
+  };
+  return { deleteFoods };
 };
 
 export const useFoodNameValidation = () => {

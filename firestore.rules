@@ -14,7 +14,7 @@ service cloud.firestore {
     }
 
     match /users/{userID} {
-      match /foods/{foodsID} {
+      match /foods/{foodID} {
       allow get, list: if isAuthenticated() && isAuthenticatedUser(userID)
         && isAuthenticatedUser(userID);
       allow create: if isAuthenticated()
@@ -31,6 +31,8 @@ service cloud.firestore {
         && request.resource.data.expiryDate is timestamp
         && request.resource.data.notificationDate is timestamp
         && request.resource.data.updatedAt == request.time;
+      allow delete: if isAuthenticated()
+        && isAuthenticatedUser(userID)
       }
     }
 
